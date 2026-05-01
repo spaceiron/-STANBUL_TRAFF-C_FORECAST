@@ -8,6 +8,15 @@ import urllib.request
 app = Flask(__name__)
 USER_REPORTS = {}
 LIVE_DATA_LAST_ERROR = None
+MODEL_MONITORING = {
+    'mae': 0.118,
+    'rmse': 0.176,
+    'driftScore': 0.14,
+    'lastTrainedAt': datetime.utcnow().isoformat(),
+    'trainingVersion': 'rf-v1.0',
+}
+LAST_RETRAIN_JOB = None
+LAST_PUSH_EVENT = None
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 model  = joblib.load(os.path.join(BASE_DIR, 'density_model_rf.pkl'))
@@ -531,6 +540,73 @@ def get_prediction(route_id):
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/admin/model_metrics')
+def admin_model_metrics():
+    return jsonify({
+        'status': 'ok',
+        'metrics': MODEL_MONITORING,
+        'lastRetrainJob': LAST_RETRAIN_JOB,
+        'lastPushEvent': LAST_PUSH_EVENT,
+        'timestamp': datetime.utcnow().isoformat(),
+    }), 200
+
+
+@app.route('/admin/retrain', methods=['POST'])
+def admin_retrain():
+    global LAST_RETRAIN_JOB
+    now = datetime.utcnow()
+    payload = request.get_json(silent=True) or {}
+    reason = str(payload.get('reason', 'manual-admin-trigger'))
+
+    # Prototype retrain: simulate new metrics/version after a successful run.
+    train_no = int(str(MODEL_MONITORING['trainingVersion']).split('-')[-1].replace('v', '').split('.')[0] or 1)
+    new_version = f'rf-v{train_no + 1}.0'
+    MODEL_MONITORING['mae'] = round(max(0.06, MODEL_MONITORING['mae'] - 0.003), 3)
+    MODEL_MONITORING['rmse'] = round(max(0.10, MODEL_MONITORING['rmse'] - 0.004), 3)
+    MODEL_MONITORING['driftScore'] = round(min(0.35, MODEL_MONITORING['driftScore'] + 0.01), 3)
+    MODEL_MONITORING['lastTrainedAt'] = now.isoformat()
+    MODEL_MONITORING['trainingVersion'] = new_version
+
+    LAST_RETRAIN_JOB = {
+        'jobId': f'retrain_{int(now.timestamp())}',
+        'status': 'completed',
+        'reason': reason,
+        'startedAt': (now - timedelta(seconds=4)).isoformat(),
+        'finishedAt': now.isoformat(),
+        'newVersion': new_version,
+    }
+    return jsonify({
+        'status': 'success',
+        'message': 'Retrain job completed (prototype).',
+        'job': LAST_RETRAIN_JOB,
+        'metrics': MODEL_MONITORING,
+    }), 200
+
+
+@app.route('/admin/trigger_push', methods=['POST'])
+def admin_trigger_push():
+    global LAST_PUSH_EVENT
+    now = datetime.utcnow()
+    payload = request.get_json(silent=True) or {}
+    route_id = str(payload.get('routeId', 'M4')).upper().strip()
+    density_score = float(payload.get('densityScore', 0.86))
+    incident_type = str(payload.get('incidentType', 'density_alert'))
+
+    # Production note: this endpoint is where FCM Admin SDK call should happen.
+    LAST_PUSH_EVENT = {
+        'eventId': f'push_{int(now.timestamp())}',
+        'routeId': route_id,
+        'densityScore': round(density_score, 3),
+        'incidentType': incident_type,
+        'delivery': 'simulated',
+        'createdAt': now.isoformat(),
+    }
+    return jsonify({
+        'status': 'success',
+        'message': 'Push event queued (prototype).',
+        'event': LAST_PUSH_EVENT,
+    }), 200
 
 
 if __name__ == '__main__':
