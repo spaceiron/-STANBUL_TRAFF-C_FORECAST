@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "364001890523",
+    "project_id": "istanbul-traffic-forecast",
+    "storage_bucket": "istanbul-traffic-forecast.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364001890523:android:fa285ecf48b98e7ed3fcfe",
+        "android_client_info": {
+          "package_name": "com.example.istanbul_traffic_forecast"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZ9Ag9SdpuNj2Qc7ADlgfeJzelU7PnSgI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
