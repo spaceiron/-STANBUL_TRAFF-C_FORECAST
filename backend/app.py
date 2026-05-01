@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request
 import joblib
 import urllib.parse
 import urllib.request
+import hashlib
 
 app = Flask(__name__)
 USER_REPORTS = {}
@@ -17,6 +18,27 @@ MODEL_MONITORING = {
 }
 LAST_RETRAIN_JOB = None
 LAST_PUSH_EVENT = None
+
+ROUTE_STOP_NAMES = {
+    'M4': [
+        'Kadikoy', 'Ayrilik Cesmesi', 'Acibadem', 'Unalan', 'Goztepe',
+        'Yenisahra', 'Kozyatagi', 'Bostanci', 'Kucukyali', 'Maltepe',
+        'Huzurevi', 'Gulsuyu', 'Esenkent', 'Hastane-Adliye', 'Soganlik',
+        'Kartal', 'Yakacik-Adnan Kahveci', 'Pendik', 'Tavsantepe',
+        'Fevzi Cakmak-Hastane', 'Yayalar-Seyhli', 'Kurtkoy', 'Sabiha Gokcen',
+    ],
+    'M2': [
+        'Yenikapi', 'Vezneciler', 'Halic', 'Sishane', 'Taksim',
+        'Osmanbey', 'Sisli-Mecidiyekoy', 'Gayrettepe', 'Levent',
+        '4.Levent', 'Sanayi Mahallesi', 'Seyrantepe', 'ITU-Ayazaga',
+        'Ataturk Oto Sanayi', 'Darussafaka', 'Haciosman',
+    ],
+    '34BZ': [
+        'Avcilar', 'Beylikduzu', 'Sefakoy', 'Sirinevler', 'Merter',
+        'Cevizlibag', 'Zeytinburnu', 'Topkapi', 'Edirnekapi', 'Halicioglu',
+        'Okmeydani', 'Darulaceze-Perpa', 'Mecidiyekoy', 'Zincirlikuyu',
+    ],
+}
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 model  = joblib.load(os.path.join(BASE_DIR, 'density_model_rf.pkl'))
@@ -297,10 +319,16 @@ def health():
     })
 
 def mock_stops(route_id, stop_count=12):
-    import random
-
     center_lat, center_lng = ROUTE_CENTERS.get(route_id, (41.0082, 28.9784))
-    base_bearing = random.uniform(0, 2 * np.pi)
+    stop_names = ROUTE_STOP_NAMES.get(route_id.upper().strip(), [])
+    if stop_names:
+        stop_count = len(stop_names)
+
+    # Hat bazlı deterministik yön: aynı route her çağrıda aynı geometriyi verir.
+    route_hash = hashlib.md5(route_id.upper().strip().encode('utf-8')).hexdigest()
+    hash_num = int(route_hash[:8], 16)
+    base_bearing = (hash_num % 360) * (np.pi / 180.0)
+
     points = []
     for i in range(stop_count):
         # Basit bir hat eğrisi oluşturup durakları bu çizgi üzerine dizer.
@@ -316,7 +344,7 @@ def mock_stops(route_id, stop_count=12):
 
         points.append({
             'id': f'{route_id}_{i+1}',
-            'name': f'{route_id} Durak {i+1}',
+            'name': stop_names[i] if i < len(stop_names) else f'{route_id} Durak {i+1}',
             'lat': round(center_lat + rot_lat, 6),
             'lng': round(center_lng + rot_lng, 6),
         })
