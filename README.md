@@ -1,6 +1,9 @@
-# istanbul_traffic_forecast
+# TrafikPuls — Istanbul Traffic Forecast
 
-A new Flutter project.
+**Student:** Uzay Demir — **210218027**  
+Graduation project: mobile crowd-density decision support for Istanbul public transport.
+
+Stack: Flutter · Firebase · Flask · scikit-learn (Random Forest) · Render (HTTPS API).
 
 ## Getting Started
 
@@ -57,5 +60,21 @@ Run app with API URL:
 
 `flutter run --dart-define=API_BASE_URL=https://your-backend-url.onrender.com`
 
-Without `--dart-define`, app keeps using local:
-`http://10.0.2.2:5000`
+Without `--dart-define`, the app uses the deployed Render API by default.
+
+Local backend + emulator:
+
+```bash
+./scripts/run_backend_local.sh
+# other terminal:
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:5000
+```
+
+Presentation / demo:
+
+```bash
+chmod +x scripts/run_demo.sh
+./scripts/run_demo.sh
+```
+
+Report fixes checklist: `docs/REPORT_PDF_AUDIT_AND_FIXES.md`

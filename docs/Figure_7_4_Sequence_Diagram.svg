@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="620" viewBox="0 0 960 620">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .name { font: bold 11px Arial, sans-serif; fill: #0f172a; }
+      .msg { font: 10px Arial, sans-serif; fill: #334155; }
+      .cap { font: bold 14px Arial, sans-serif; fill: #0f172a; }
+    </style>
+  </defs>
+  <rect width="960" height="620" fill="#fff"/>
+  <!-- Lifelines -->
+  <text x="80" y="40" text-anchor="middle" class="name">Passenger</text>
+  <text x="240" y="40" text-anchor="middle" class="name">MapScreen</text>
+  <text x="420" y="40" text-anchor="middle" class="name">Flask API</text>
+  <text x="600" y="40" text-anchor="middle" class="name">ML Engine</text>
+  <text x="780" y="40" text-anchor="middle" class="name">Firestore</text>
+  <line x1="80" y1="55" x2="80" y2="560" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <line x1="240" y1="55" x2="240" y2="560" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <line x1="420" y1="55" x2="420" y2="560" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <line x1="600" y1="55" x2="600" y2="560" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <line x1="780" y1="55" x2="780" y2="560" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <!-- Messages -->
+  <line x1="80" y1="80" x2="230" y2="80" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="155" y="72" text-anchor="middle" class="msg">selectRoute(M4)</text>
+  <line x1="240" y1="110" x2="410" y2="110" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="325" y="102" text-anchor="middle" class="msg">GET /get_prediction/M4</text>
+  <line x1="420" y1="140" x2="590" y2="140" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="505" y="132" text-anchor="middle" class="msg">predict_density()</text>
+  <line x1="590" y1="170" x2="430" y2="170" stroke="#334155" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="510" y="162" text-anchor="middle" class="msg">densityScore</text>
+  <line x1="420" y1="200" x2="250" y2="200" stroke="#334155" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="335" y="192" text-anchor="middle" class="msg">JSON + forecast + confidence</text>
+  <line x1="240" y1="230" x2="410" y2="230" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="325" y="222" text-anchor="middle" class="msg">GET /get_stops/M4</text>
+  <line x1="420" y1="260" x2="250" y2="260" stroke="#334155" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="335" y="252" text-anchor="middle" class="msg">stops[] + etaMin</text>
+  <line x1="80" y1="300" x2="230" y2="300" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="155" y="292" text-anchor="middle" class="msg">submitFeedback(full)</text>
+  <line x1="240" y1="330" x2="770" y2="330" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="505" y="322" text-anchor="middle" class="msg">add feedback document</text>
+  <line x1="240" y1="360" x2="410" y2="360" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="325" y="352" text-anchor="middle" class="msg">POST /report_density</text>
+  <line x1="420" y1="390" x2="250" y2="390" stroke="#334155" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="335" y="382" text-anchor="middle" class="msg">success</text>
+  <line x1="240" y1="420" x2="410" y2="420" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="325" y="412" text-anchor="middle" class="msg">GET /get_prediction/M4 (refresh)</text>
+  <line x1="420" y1="450" x2="250" y2="450" stroke="#334155" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="335" y="442" text-anchor="middle" class="msg">updated density (blended)</text>
+  <line x1="240" y1="480" x2="90" y2="480" stroke="#334155" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="165" y="472" text-anchor="middle" class="msg">show updated panel</text>
+  <rect x="60" y="500" width="840" height="28" rx="4" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="480" y="518" text-anchor="middle" class="msg">alt [threshold exceeded] -> NotificationService.showLocalAlert()</text>
+  <text x="480" y="600" text-anchor="middle" class="cap">Figure 7.4 - Sequence diagram (prediction and feedback flow)</text>
+</svg>

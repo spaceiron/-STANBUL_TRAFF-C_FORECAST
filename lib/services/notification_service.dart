@@ -4,6 +4,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'app_settings_service.dart';
+import '../utils/locale_helper.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -19,12 +21,11 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final _fcm   = FirebaseMessaging.instance;
-  final _local = FlutterLocalNotificationsPlugin();
+  final _fcm      = FirebaseMessaging.instance;
+  final _local    = FlutterLocalNotificationsPlugin();
+  final _settings = AppSettingsService();
 
-  static const _channelId          = 'traffic_density_channel';
-  static const _channelName        = 'Trafik Yoğunluğu';
-  static const _channelDescription = 'Favori hatlarınızdaki yoğunluk değişikliklerini bildirir.';
+  static const _channelId = 'traffic_density_channel';
 
   Future<void> initialize() async {
     final settings = await _fcm.requestPermission(
@@ -46,13 +47,18 @@ class NotificationService {
         onDidReceiveNotificationResponse: _onNotificationTap,
       );
 
+      final language = await _settings.getLanguage();
+      final channelName = LocaleHelper.notificationChannelName(language);
+      final channelDescription =
+          LocaleHelper.notificationChannelDescription(language);
+
       final androidPlugin = _local
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
       await androidPlugin?.createNotificationChannel(
-        const AndroidNotificationChannel(
+        AndroidNotificationChannel(
           _channelId,
-          _channelName,
-          description: _channelDescription,
+          channelName,
+          description: channelDescription,
           importance:  Importance.high,
         ),
       );
@@ -92,19 +98,24 @@ class NotificationService {
     String? payload,
     int id = 0,
   }) async {
+    final language = await _settings.getLanguage();
+    final channelName = LocaleHelper.notificationChannelName(language);
+    final channelDescription =
+        LocaleHelper.notificationChannelDescription(language);
+
     await _local.show(
       id, title, body,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,
-          _channelName,
-          channelDescription: _channelDescription,
+          channelName,
+          channelDescription: channelDescription,
           importance: Importance.high,
           priority:   Priority.high,
           icon:       '@mipmap/ic_launcher',
-          color:      Color(0xFF3B82F6),
+          color:      const Color(0xFF3B82F6),
         ),
-        iOS: DarwinNotificationDetails(
+        iOS: const DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
@@ -118,12 +129,13 @@ class NotificationService {
     required String routeId,
     required double densityScore,
   }) async {
+    final language = await _settings.getLanguage();
     final pct   = (densityScore * 100).round();
     final emoji = densityScore > 0.66 ? '🔴' : '🟡';
     await showLocalNotification(
       id:      routeId.hashCode,
-      title:   '$emoji $routeId Hattı Uyarısı',
-      body:    'Yoğunluk %$pct seviyesine ulaştı.',
+      title:   '$emoji ${LocaleHelper.densityAlertTitle(routeId, language)}',
+      body:    LocaleHelper.densityAlertBody(pct, language),
       payload: routeId,
     );
   }
@@ -134,12 +146,13 @@ class NotificationService {
     required int delayMin,
     String? incidentType,
   }) async {
-    final delayText = delayMin > 0 ? '~$delayMin dk gecikme' : 'gecikme beklenmiyor';
+    final language = await _settings.getLanguage();
+    final delay = LocaleHelper.delayText(delayMin, language);
     final icon = (incidentType ?? '').toLowerCase() == 'accident' ? '🚧' : '⚠️';
     await showLocalNotification(
       id: '$routeId$title$delayMin'.hashCode,
-      title: '$icon $routeId Olay Uyarisi',
-      body: '$title ($delayText)',
+      title: '$icon ${LocaleHelper.incidentAlertTitle(routeId, language)}',
+      body: '$title ($delay)',
       payload: routeId,
     );
   }

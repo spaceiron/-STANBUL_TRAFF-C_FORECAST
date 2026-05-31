@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
+import '../config/admin_config.dart';
 import '../models/route_feedback_prediction_models.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -25,17 +27,37 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Map<String, dynamic>? _lastPushEvent;
   String _adminMessage = '';
 
+  bool _accessDenied = false;
+
   @override
   void initState() {
     super.initState();
+    final email = FirebaseAuth.instance.currentUser?.email;
+    if (!AdminConfig.isAdminEmail(email)) {
+      _accessDenied = true;
+      return;
+    }
     _refreshAdminData();
+  }
+
+  Map<String, String> _adminHeaders({bool jsonBody = false}) {
+    final headers = <String, String>{};
+    if (jsonBody) headers['Content-Type'] = 'application/json';
+    final email = FirebaseAuth.instance.currentUser?.email;
+    if (email != null && email.isNotEmpty) {
+      headers['X-User-Email'] = email;
+    }
+    return headers;
   }
 
   Future<void> _refreshAdminData() async {
     setState(() => _adminLoading = true);
     try {
       final res = await http
-          .get(Uri.parse('${AppConfig.apiBaseUrl}/admin/model_metrics'))
+          .get(
+            Uri.parse('${AppConfig.apiBaseUrl}/admin/model_metrics'),
+            headers: _adminHeaders(),
+          )
           .timeout(const Duration(seconds: 10));
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
@@ -68,7 +90,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       final res = await http
           .post(
             Uri.parse('${AppConfig.apiBaseUrl}/admin/retrain'),
-            headers: {'Content-Type': 'application/json'},
+            headers: _adminHeaders(jsonBody: true),
             body: jsonEncode({'reason': 'dashboard-manual-trigger'}),
           )
           .timeout(const Duration(seconds: 12));
@@ -91,7 +113,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       final res = await http
           .post(
             Uri.parse('${AppConfig.apiBaseUrl}/admin/trigger_push'),
-            headers: {'Content-Type': 'application/json'},
+            headers: _adminHeaders(jsonBody: true),
             body: jsonEncode({
               'routeId': 'M4',
               'densityScore': 0.89,
@@ -123,6 +145,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_accessDenied) {
+      return Scaffold(
+        backgroundColor: _bg,
+        appBar: AppBar(
+          title: const Text('Admin Dashboard',
+              style: TextStyle(color: _textPri, fontWeight: FontWeight.w600)),
+          backgroundColor: _bg,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: _textPri),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              'Bu alan yalnızca yetkili admin hesabı içindir.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: _textSec, fontSize: 15),
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: _bg,
       appBar: AppBar(

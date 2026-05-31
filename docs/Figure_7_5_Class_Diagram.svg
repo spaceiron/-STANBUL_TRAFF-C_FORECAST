@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="640" viewBox="0 0 960 640">
+  <defs>
+    <style>
+      .cls { font: bold 12px Arial, sans-serif; fill: #0f172a; }
+      .attr { font: 10px Arial, sans-serif; fill: #334155; }
+      .cap { font: bold 14px Arial, sans-serif; fill: #0f172a; }
+    </style>
+  </defs>
+  <rect width="960" height="640" fill="#fff"/>
+  <!-- UserModel -->
+  <rect x="40" y="50" width="200" height="120" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="140" y="72" text-anchor="middle" class="cls">UserModel</text>
+  <line x1="40" y1="82" x2="240" y2="82" stroke="#3b82f6"/>
+  <text x="50" y="98" class="attr">- uid: String</text>
+  <text x="50" y="114" class="attr">- name: String</text>
+  <text x="50" y="130" class="attr">- email: String</text>
+  <text x="50" y="146" class="attr">- favoriteRoutes: List</text>
+  <!-- RouteModel -->
+  <rect x="280" y="50" width="200" height="100" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+  <text x="380" y="72" text-anchor="middle" class="cls">RouteModel</text>
+  <line x1="280" y1="82" x2="480" y2="82" stroke="#059669"/>
+  <text x="290" y="98" class="attr">- routeId: String</text>
+  <text x="290" y="114" class="attr">- lineName: String</text>
+  <text x="290" y="130" class="attr">- type: TransportType</text>
+  <!-- FeedbackModel -->
+  <rect x="520" y="50" width="200" height="120" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="620" y="72" text-anchor="middle" class="cls">FeedbackModel</text>
+  <line x1="520" y1="82" x2="720" y2="82" stroke="#ea580c"/>
+  <text x="530" y="98" class="attr">- feedbackId: String</text>
+  <text x="530" y="114" class="attr">- userId: String</text>
+  <text x="530" y="130" class="attr">- routeId: String</text>
+  <text x="530" y="146" class="attr">- status: DensityStatus</text>
+  <!-- PredictionModel -->
+  <rect x="760" y="50" width="180" height="120" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="850" y="72" text-anchor="middle" class="cls">PredictionModel</text>
+  <line x1="760" y1="82" x2="940" y2="82" stroke="#16a34a"/>
+  <text x="770" y="98" class="attr">- routeId: String</text>
+  <text x="770" y="114" class="attr">- densityScore: double</text>
+  <text x="770" y="130" class="attr">- confidenceScore: double</text>
+  <text x="770" y="146" class="attr">- timestamp: DateTime</text>
+  <!-- Services -->
+  <rect x="120" y="240" width="220" height="90" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="230" y="262" text-anchor="middle" class="cls">FirestoreService</text>
+  <line x1="120" y1="272" x2="340" y2="272" stroke="#64748b"/>
+  <text x="130" y="288" class="attr">+ createUser()</text>
+  <text x="130" y="304" class="attr">+ addFeedback()</text>
+  <text x="130" y="320" class="attr">+ watchFeedbacks()</text>
+  <rect x="380" y="240" width="200" height="70" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="480" y="262" text-anchor="middle" class="cls">NotificationService</text>
+  <line x1="380" y1="272" x2="580" y2="272" stroke="#64748b"/>
+  <text x="390" y="288" class="attr">+ showLocalAlert()</text>
+  <text x="390" y="304" class="attr">+ saveFcmToken()</text>
+  <rect x="620" y="240" width="200" height="70" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="720" y="262" text-anchor="middle" class="cls">AppSettingsService</text>
+  <line x1="620" y1="272" x2="820" y2="272" stroke="#64748b"/>
+  <text x="630" y="288" class="attr">+ getLanguage()</text>
+  <text x="630" y="304" class="attr">+ getDensityThreshold()</text>
+  <!-- Screens -->
+  <rect x="60" y="400" width="160" height="60" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="140" y="432" text-anchor="middle" class="cls">LoginScreen</text>
+  <rect x="250" y="400" width="160" height="60" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="330" y="432" text-anchor="middle" class="cls">MapScreen</text>
+  <rect x="440" y="400" width="160" height="60" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="520" y="432" text-anchor="middle" class="cls">FeedbackScreen</text>
+  <rect x="630" y="400" width="160" height="60" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="710" y="432" text-anchor="middle" class="cls">ProfileScreen</text>
+  <rect x="820" y="400" width="120" height="60" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="880" y="432" text-anchor="middle" class="cls">AdminDashboard</text>
+  <!-- Relations -->
+  <line x1="230" y1="330" x2="140" y2="170" stroke="#64748b" stroke-dasharray="4,3"/>
+  <line x1="230" y1="330" x2="620" y2="170" stroke="#64748b" stroke-dasharray="4,3"/>
+  <line x1="330" y1="400" x2="230" y2="330" stroke="#64748b"/>
+  <line x1="520" y1="400" x2="230" y2="330" stroke="#64748b"/>
+  <line x1="330" y1="400" x2="380" y2="170" stroke="#64748b" stroke-dasharray="4,3"/>
+  <line x1="330" y1="400" x2="850" y2="170" stroke="#64748b" stroke-dasharray="4,3"/>
+  <text x="480" y="375" text-anchor="middle" class="attr">uses</text>
+  <text x="480" y="620" text-anchor="middle" class="cap">Figure 7.5 - Simplified class diagram (mobile layer)</text>
+</svg>

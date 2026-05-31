@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .ent { font: bold 11px Arial, sans-serif; fill: #0f172a; }
+      .proc { font: bold 11px Arial, sans-serif; fill: #1e3a8a; }
+      .flow { font: 10px Arial, sans-serif; fill: #334155; }
+      .cap { font: bold 14px Arial, sans-serif; fill: #0f172a; }
+      .hdr { font: bold 12px Arial, sans-serif; fill: #475569; }
+    </style>
+  </defs>
+  <rect width="900" height="520" fill="#fff"/>
+  <text x="450" y="35" text-anchor="middle" class="hdr">Level 0 - Data Flow Diagram</text>
+  <rect x="40" y="200" width="100" height="50" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="90" y="230" text-anchor="middle" class="ent">Passenger</text>
+  <rect x="760" y="80" width="100" height="50" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="810" y="105" text-anchor="middle" class="ent">Firebase</text>
+  <rect x="760" y="200" width="100" height="50" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="810" y="225" text-anchor="middle" class="ent">IBB Data</text>
+  <rect x="760" y="320" width="100" height="50" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="810" y="345" text-anchor="middle" class="ent">Admin</text>
+  <circle cx="450" cy="250" r="75" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="450" y="242" text-anchor="middle" class="proc">0</text>
+  <text x="450" y="258" text-anchor="middle" class="proc">TrafikPuls</text>
+  <text x="450" y="274" text-anchor="middle" class="flow">Processing</text>
+  <line x1="140" y1="225" x2="375" y2="240" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="230" y="215" class="flow">route query, feedback</text>
+  <line x1="375" y1="260" x2="140" y2="245" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="230" y="275" class="flow">predictions, alerts</text>
+  <line x1="525" y1="220" x2="760" y2="105" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="620" y="150" class="flow">auth, stored feedback</text>
+  <line x1="525" y1="250" x2="760" y2="225" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="620" y="245" class="flow">fetch stops/vehicles</text>
+  <line x1="760" y1="235" x2="525" y2="255" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="620" y="270" class="flow">live coordinates</text>
+  <line x1="760" y1="345" x2="525" y2="280" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="620" y="320" class="flow">admin commands</text>
+  <line x1="525" y1="290" x2="760" y2="335" stroke="#334155" marker-end="url(#arrow)"/>
+  <text x="620" y="305" class="flow">metrics, job status</text>
+  <text x="450" y="500" text-anchor="middle" class="cap">Figure 7.7 - Level 0 data flow diagram (DFD)</text>
+</svg>

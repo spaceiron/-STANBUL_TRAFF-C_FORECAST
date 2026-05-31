@@ -9,6 +9,7 @@ import '../models/route_feedback_prediction_models.dart';
 import '../services/app_settings_service.dart';
 import '../services/firestore_service.dart';
 import '../services/notification_service.dart';
+import '../utils/locale_helper.dart';
 
 const String _flaskBaseUrl = AppConfig.apiBaseUrl;
 const LatLng _istanbulCenter = LatLng(41.0082, 28.9784);
@@ -247,8 +248,11 @@ final List<RouteModel> _allRoutes = [
           icon: BitmapDescriptor.defaultMarkerWithHue(
               BitmapDescriptor.hueAzure),
           infoWindow: InfoWindow(
-            title:   '$routeId Hattı',
-            snippet: 'Hız: ${bus['speed'].toStringAsFixed(0)} km/h',
+            title:   LocaleHelper.lineName(routeId, _language),
+            snippet: LocaleHelper.speedSnippet(
+              (bus['speed'] as num).toDouble(),
+              _language,
+            ),
           ),
           onTap: () => _fetchPrediction(routeId),
         ));
@@ -430,9 +434,10 @@ final List<RouteModel> _allRoutes = [
     final top = incidents.first;
 
     _lastIncidentAlertAt[routeId] = now;
+    final localizedTitle = LocaleHelper.incidentTitle(top, _language);
     await _notifier.sendIncidentAlert(
       routeId: routeId,
-      title: (top['title'] ?? _t('Yolda olay bildirimi', 'Incident reported on route')).toString(),
+      title: localizedTitle,
       delayMin: (top['delayMin'] as num?)?.toInt() ?? 0,
       incidentType: top['type']?.toString(),
     );
@@ -450,40 +455,14 @@ final List<RouteModel> _allRoutes = [
     return Icons.groups;
   }
 
-  String _densityLabel(double score) {
-    final pct = (score * 100).round();
-    if (_isEn) {
-      if (score < 0.33) return '$pct% Empty';
-      if (score < 0.66) return '$pct% Medium';
-      return '$pct% Full';
-    }
-    if (score < 0.33) return '$pct% Boş';
-    if (score < 0.66) return '$pct% Orta Yoğun';
-    return '$pct% Dolu';
-  }
+  String _densityLabel(double score) =>
+      LocaleHelper.densityLabel(score, _language);
 
-  String _confidenceLabel(double score) {
-    final pct = (score * 100).round();
-    if (_isEn) {
-      if (score < 0.5) return 'Low confidence ($pct%)';
-      if (score < 0.75) return 'Medium confidence ($pct%)';
-      return 'High confidence ($pct%)';
-    }
-    if (score < 0.5) return 'Düşük güven ($pct%)';
-    if (score < 0.75) return 'Orta güven ($pct%)';
-    return 'Yüksek güven ($pct%)';
-  }
+  String _confidenceLabel(double score) =>
+      LocaleHelper.confidenceLabel(score, _language);
 
-  String _incidentSeverityLabel(String raw) {
-    switch (raw.toLowerCase()) {
-      case 'high':
-        return _t('Yüksek', 'High');
-      case 'medium':
-        return _t('Orta', 'Medium');
-      default:
-        return _t('Düşük', 'Low');
-    }
-  }
+  String _incidentSeverityLabel(String raw) =>
+      LocaleHelper.incidentSeverityLabel(raw, _language);
 
   @override
   Widget build(BuildContext context) {
@@ -566,7 +545,8 @@ final List<RouteModel> _allRoutes = [
                             leading: Icon(icon, color: Colors.blue),
                             title:   Text(route.lineName),
                             subtitle: Text(
-                                route.type.name.toUpperCase()),
+                                LocaleHelper.transportTypeLabel(
+                                    route.type, _language)),
                             onTap: () => _selectRoute(route),
                           );
                         }).toList(),
@@ -620,7 +600,10 @@ final List<RouteModel> _allRoutes = [
             child: SafeArea(
               child: FloatingActionButton.small(
                 heroTag:         'profile',
-                onPressed:       () => Navigator.pushNamed(context, '/profile'),
+                onPressed:       () async {
+                  await Navigator.pushNamed(context, '/profile');
+                  if (mounted) await _loadLanguage();
+                },
                 backgroundColor: Colors.white,
                 child: const Icon(Icons.person, color: Colors.blue),
               ),
@@ -641,6 +624,7 @@ final List<RouteModel> _allRoutes = [
                 // pushNamed'in bitmesini (sayfanın kapanmasını) bekle
                await Navigator.pushNamed(context, '/feedback', arguments: _selectedRouteId);
   
+                if (mounted) await _loadLanguage();
                 // Bildirim yapılıp geri dönüldüğünde, yeni oranı görmek için tahmini tekrar çek
                 _fetchPrediction(_selectedRouteId);
               },
@@ -832,7 +816,7 @@ final List<RouteModel> _allRoutes = [
                                         fontSize: 11,
                                         color:    Colors.grey[600])),
                                 const SizedBox(height: 4),
-                                Text(f['label'] as String,
+                                Text(_densityLabel(fscore),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize:   12,
@@ -855,7 +839,7 @@ final List<RouteModel> _allRoutes = [
                     const SizedBox(height: 8),
                     ..._activeIncidents.take(2).map((incident) {
                       final delay = (incident['delayMin'] as num?)?.toInt() ?? 0;
-                      final title = (incident['title'] ?? _t('Olay', 'Incident')).toString();
+                      final title = LocaleHelper.incidentTitle(incident, _language);
                       final severity = _incidentSeverityLabel(
                         (incident['severity'] ?? '').toString(),
                       );

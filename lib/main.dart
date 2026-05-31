@@ -12,6 +12,7 @@ import 'screens/profile_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/admin_dashboard_screen.dart';
 import 'services/notification_service.dart';
+import 'config/admin_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,7 +51,12 @@ class TrafikPulsApp extends StatelessWidget {
         '/login':      (_) => const LoginScreen(),
         '/map':        (_) => const MapScreen(),
         '/profile':    (_) => const ProfileScreen(),
-        '/admin-lite': (_) => const AdminDashboardScreen(),
+        '/admin-lite': (_) {
+          if (!AdminConfig.isAdminEmail(FirebaseAuth.instance.currentUser?.email)) {
+            return const _AdminAccessDeniedScreen();
+          }
+          return const AdminDashboardScreen();
+        },
         '/onboarding': (_) => const OnboardingScreen(),
       },
       onGenerateRoute: (settings) {
@@ -98,6 +104,44 @@ class _AppGate extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _AdminAccessDeniedScreen extends StatelessWidget {
+  const _AdminAccessDeniedScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF080C14),
+      appBar: AppBar(
+        title: const Text('Admin'),
+        backgroundColor: const Color(0xFF080C14),
+        foregroundColor: const Color(0xFFEFF6FF),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.lock_outline, color: Color(0xFF64748B), size: 48),
+              const SizedBox(height: 16),
+              const Text(
+                'You do not have admin access.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Color(0xFFEFF6FF), fontSize: 16),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Back'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../services/app_settings_service.dart';
 import '../config/app_config.dart';
+import '../utils/locale_helper.dart';
 
 class FeedbackScreen extends StatefulWidget {
   final String routeId;
@@ -108,8 +109,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     return Scaffold(
       backgroundColor: _bg,
       appBar: AppBar(
-        title: Text(_t('${widget.routeId} Hattı — Yoğunluk Bildir',
-                '${widget.routeId} Line — Report Density'),
+        title: Text(
+          '${LocaleHelper.lineName(widget.routeId, _language)} — '
+          '${_t("Yoğunluk Bildir", "Report Density")}',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         backgroundColor:  _bg,
         foregroundColor:  _textPri,

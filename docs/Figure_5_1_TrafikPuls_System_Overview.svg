@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="520" viewBox="0 0 920 520">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .title { font: bold 18px Arial, sans-serif; fill: #0f172a; }
+      .box-title { font: bold 13px Arial, sans-serif; fill: #0f172a; }
+      .box-text { font: 12px Arial, sans-serif; fill: #334155; }
+      .center-title { font: bold 16px Arial, sans-serif; fill: #1e3a8a; }
+      .center-sub { font: 11px Arial, sans-serif; fill: #1e40af; }
+    </style>
+  </defs>
+
+  <rect width="920" height="520" fill="#ffffff"/>
+
+  <!-- Center -->
+  <ellipse cx="460" cy="250" rx="145" ry="58" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="460" y="242" text-anchor="middle" class="center-title">TRAFIKPULS SYSTEM</text>
+  <text x="460" y="262" text-anchor="middle" class="center-sub">Istanbul Traffic Forecast</text>
+
+  <!-- User -->
+  <rect x="30" y="200" width="150" height="100" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="105" y="228" text-anchor="middle" class="box-title">Passenger / User</text>
+  <text x="105" y="250" text-anchor="middle" class="box-text">Search route</text>
+  <text x="105" y="268" text-anchor="middle" class="box-text">View prediction</text>
+  <text x="105" y="286" text-anchor="middle" class="box-text">Submit feedback</text>
+
+  <!-- Flutter -->
+  <rect x="220" y="70" width="170" height="90" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="305" y="98" text-anchor="middle" class="box-title">Flutter Mobile App</text>
+  <text x="305" y="118" text-anchor="middle" class="box-text">Map UI</text>
+  <text x="305" y="136" text-anchor="middle" class="box-text">Profile &amp; Alerts</text>
+
+  <!-- Firebase -->
+  <rect x="220" y="340" width="170" height="100" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="305" y="368" text-anchor="middle" class="box-title">Firebase Services</text>
+  <text x="305" y="388" text-anchor="middle" class="box-text">Authentication</text>
+  <text x="305" y="406" text-anchor="middle" class="box-text">Cloud Firestore</text>
+  <text x="305" y="424" text-anchor="middle" class="box-text">FCM Notifications</text>
+
+  <!-- Flask API -->
+  <rect x="530" y="70" width="170" height="90" rx="10" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+  <text x="615" y="98" text-anchor="middle" class="box-title">Flask REST API</text>
+  <text x="615" y="118" text-anchor="middle" class="box-text">Prediction</text>
+  <text x="615" y="136" text-anchor="middle" class="box-text">Stops / Incidents</text>
+
+  <!-- ML -->
+  <rect x="530" y="340" width="170" height="100" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="615" y="368" text-anchor="middle" class="box-title">ML Engine</text>
+  <text x="615" y="388" text-anchor="middle" class="box-text">Random Forest Model</text>
+  <text x="615" y="406" text-anchor="middle" class="box-text">Density + Confidence</text>
+  <text x="615" y="424" text-anchor="middle" class="box-text">Forecast (30/60 min)</text>
+
+  <!-- Open Data -->
+  <rect x="740" y="200" width="150" height="100" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="815" y="228" text-anchor="middle" class="box-title">Open Data Feed</text>
+  <text x="815" y="250" text-anchor="middle" class="box-text">IBB / Municipal API</text>
+  <text x="815" y="268" text-anchor="middle" class="box-text">Vehicle &amp; Stop Data</text>
+  <text x="815" y="286" text-anchor="middle" class="box-text">(with fallback)</text>
+
+  <!-- Arrows -->
+  <line x1="180" y1="250" x2="315" y2="250" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="305" y1="160" x2="380" y2="210" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="305" y1="290" x2="380" y2="250" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="540" y1="250" x2="605" y2="250" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="615" y1="160" x2="540" y2="210" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="615" y1="340" x2="540" y2="290" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="740" y1="250" x2="605" y2="250" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Labels on arrows -->
+  <text x="248" y="238" class="box-text">uses</text>
+  <text x="498" y="238" class="box-text">API calls</text>
+  <text x="678" y="238" class="box-text">live data</text>
+
+  <text x="460" y="500" text-anchor="middle" class="title">Figure 5.1 - High-level architecture of the proposed TrafikPuls system</text>
+</svg>

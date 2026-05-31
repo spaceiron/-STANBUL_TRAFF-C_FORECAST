@@ -17,8 +17,9 @@
     "speed_norm"
   ],
   "max_vehicles": 548.0,
-  "mae": 0.09,
-  "r2": 0.43,
-  "accuracy_10pct": 69.9,
-  "train_size": 40000
+  "mae": 0.0403,
+  "rmse": 0.0468,
+  "r2": 0.9495,
+  "train_size": 9600,
+  "trainedAt": "2026-05-31T10:49:31.970507"
 }

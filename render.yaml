@@ -10,3 +10,5 @@ services:
         value: 3.11.9
       - key: APP_DEBUG
         value: "0"
+      - key: ADMIN_EMAILS
+        value: demor.uzay@gmail.com

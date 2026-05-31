@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .lbl { font: 11px Arial, sans-serif; fill: #334155; }
+      .cap { font: bold 14px Arial, sans-serif; fill: #0f172a; }
+      .ent { font: bold 12px Arial, sans-serif; fill: #0f172a; }
+      .sys { font: bold 14px Arial, sans-serif; fill: #1e3a8a; }
+    </style>
+  </defs>
+  <rect width="900" height="520" fill="#fff"/>
+  <circle cx="450" cy="260" r="110" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="450" y="252" text-anchor="middle" class="sys">TrafikPuls</text>
+  <text x="450" y="272" text-anchor="middle" class="lbl">(Mobile + Backend)</text>
+  <rect x="40" y="210" width="130" height="70" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="105" y="242" text-anchor="middle" class="ent">Passenger</text>
+  <text x="105" y="260" text-anchor="middle" class="lbl">(User)</text>
+  <rect x="730" y="60" width="130" height="70" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="795" y="92" text-anchor="middle" class="ent">Firebase</text>
+  <text x="795" y="110" text-anchor="middle" class="lbl">Auth / Firestore</text>
+  <rect x="730" y="200" width="130" height="70" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+  <text x="795" y="232" text-anchor="middle" class="ent">Flask API</text>
+  <text x="795" y="250" text-anchor="middle" class="lbl">+ ML Engine</text>
+  <rect x="730" y="340" width="130" height="70" rx="8" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="795" y="372" text-anchor="middle" class="ent">IBB Open Data</text>
+  <text x="795" y="390" text-anchor="middle" class="lbl">Stops / Vehicles</text>
+  <rect x="40" y="360" width="130" height="70" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="105" y="392" text-anchor="middle" class="ent">Admin</text>
+  <text x="105" y="410" text-anchor="middle" class="lbl">(Operator)</text>
+  <line x1="170" y1="245" x2="340" y2="255" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="230" y="235" class="lbl">route search,</text>
+  <text x="230" y="248" class="lbl">feedback</text>
+  <line x1="340" y1="265" x2="170" y2="255" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="230" y="278" class="lbl">predictions,</text>
+  <text x="230" y="291" class="lbl">alerts</text>
+  <line x1="560" y1="220" x2="730" y2="95" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="620" y="145" class="lbl">login, store</text>
+  <text x="620" y="158" class="lbl">feedback</text>
+  <line x1="560" y1="250" x2="730" y2="235" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="620" y="248" class="lbl">prediction</text>
+  <text x="620" y="261" class="lbl">requests</text>
+  <line x1="730" y1="255" x2="560" y2="270" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="620" y="285" class="lbl">JSON results</text>
+  <line x1="560" y1="290" x2="730" y2="375" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="620" y="340" class="lbl">live feed</text>
+  <line x1="170" y1="395" x2="360" y2="300" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="220" y="360" class="lbl">monitor /</text>
+  <text x="220" y="373" class="lbl">admin ops</text>
+  <text x="450" y="500" text-anchor="middle" class="cap">Figure 7.1 - Context diagram of TrafikPuls</text>
+</svg>

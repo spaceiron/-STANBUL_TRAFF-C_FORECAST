@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_model.dart';
 import '../services/firestore_service.dart';
 import '../services/app_settings_service.dart';
+import '../config/admin_config.dart';
 import '../widgets/density_chart_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -305,6 +306,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         else
           ...favorites.map((routeId) => _FavoriteRouteTile(
                 routeId:  routeId,
+                isEn:     _isEn,
                 onRemove: () => _fs.removeFavoriteRoute(routeId),
                 onTap:    () => Navigator.pushNamed(context, '/map'),
               )),
@@ -342,12 +344,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           subtitle: _t('Veri kullanım bilgilendirmesi', 'Data usage information'),
           onTap:    _showPrivacyDialog,
         ),
-        _settingsTile(
-          icon:     Icons.admin_panel_settings_outlined,
-          title:    _t('Admin Dashboard (Lite)', 'Admin Dashboard (Lite)'),
-          subtitle: _t('Şüpheli veri ve temel metrikler', 'Suspicious data and quick metrics'),
-          onTap:    () => Navigator.pushNamed(context, '/admin-lite'),
-        ),
+        if (AdminConfig.isAdminEmail(_auth.currentUser?.email))
+          _settingsTile(
+            icon:     Icons.admin_panel_settings_outlined,
+            title:    _t('Admin Dashboard (Lite)', 'Admin Dashboard (Lite)'),
+            subtitle: _t('Şüpheli veri ve temel metrikler', 'Suspicious data and quick metrics'),
+            onTap:    () => Navigator.pushNamed(context, '/admin-lite'),
+          ),
         _settingsTile(
           icon:     Icons.info_outline_rounded,
           title:    _t('Hakkında', 'About'),
@@ -652,11 +655,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 class _FavoriteRouteTile extends StatelessWidget {
   final String routeId;
+  final bool isEn;
   final VoidCallback onRemove;
   final VoidCallback onTap;
 
   const _FavoriteRouteTile({
     required this.routeId,
+    required this.isEn,
     required this.onRemove,
     required this.onTap,
   });
@@ -724,10 +729,10 @@ class _FavoriteRouteTile extends StatelessWidget {
                               const SizedBox(height: 4),
                               Text(
                                 score < 0.33
-                                    ? 'Genellikle boş'
+                                    ? (isEn ? 'Usually empty' : 'Genellikle boş')
                                     : score < 0.66
-                                        ? 'Orta yoğunluk'
-                                        : 'Yoğun',
+                                        ? (isEn ? 'Medium density' : 'Orta yoğunluk')
+                                        : (isEn ? 'Crowded' : 'Yoğun'),
                                 style: const TextStyle(
                                     color:    _textSec,
                                     fontSize: 11),
@@ -743,7 +748,7 @@ class _FavoriteRouteTile extends StatelessWidget {
                   icon: const Icon(Icons.star_rounded,
                       color: Color(0xFFFBBF24), size: 22),
                   onPressed: onRemove,
-                  tooltip:   'Favoriden çıkar',
+                  tooltip:   isEn ? 'Remove from favorites' : 'Favoriden çıkar',
                 ),
               ],
             ),

@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math' as math;
 import '../models/user_model.dart';
 import '../services/firestore_service.dart';
+import '../config/admin_config.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -74,33 +76,56 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() { _isLoading = true; _errorMsg = null; });
 
     try {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
       if (_isLogin) {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email:    _emailController.text.trim(),
-          password: _passwordController.text.trim(),
+          email:    email,
+          password: password,
         );
       } else {
         final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email:    _emailController.text.trim(),
-          password: _passwordController.text.trim(),
+          email:    email,
+          password: password,
         );
         await cred.user?.updateDisplayName(_nameController.text.trim());
         if (cred.user != null) {
-          await _fs.createUser(
-            UserModel(
-              uid: cred.user!.uid,
-              name: _nameController.text.trim(),
-              email: _emailController.text.trim(),
-            ),
-          );
+          try {
+            await _fs.createUser(
+              UserModel(
+                uid: cred.user!.uid,
+                name: _nameController.text.trim(),
+                email: email,
+              ),
+            );
+          } catch (_) {
+            // Firestore rules may block write; auth still succeeded.
+          }
         }
+      }
+      try {
+        await _syncUserRole(email);
+      } catch (_) {
+        // Role sync is optional; do not block login.
       }
       if (mounted) Navigator.pushReplacementNamed(context, '/map');
     } on FirebaseAuthException catch (e) {
       setState(() => _errorMsg = _friendlyError(e.code));
+    } catch (e) {
+      setState(() => _errorMsg = 'Giriş sonrası hata: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _syncUserRole(String email) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+    final role = AdminConfig.isAdminEmail(email) ? 'admin' : 'user';
+    await FirebaseFirestore.instance.collection('users').doc(uid).set({
+      'email': email,
+      'role':  role,
+    }, SetOptions(merge: true));
   }
 
   Future<void> _signInAnonymously() async {

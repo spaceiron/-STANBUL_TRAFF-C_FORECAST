@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="520" viewBox="0 0 920 520">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .comp { font: bold 11px Arial, sans-serif; fill: #0f172a; }
+      .sub { font: 10px Arial, sans-serif; fill: #475569; }
+      .cap { font: bold 14px Arial, sans-serif; fill: #0f172a; }
+      .lbl { font: 10px Arial, sans-serif; fill: #334155; }
+    </style>
+  </defs>
+  <rect width="920" height="520" fill="#fff"/>
+  <rect x="30" y="40" width="280" height="200" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="170" y="65" text-anchor="middle" class="comp">Flutter Mobile App</text>
+  <rect x="50" y="80" width="110" height="45" rx="4" fill="#fff" stroke="#93c5fd"/>
+  <text x="105" y="100" text-anchor="middle" class="sub">UI Screens</text>
+  <text x="105" y="115" text-anchor="middle" class="sub">map, login</text>
+  <rect x="180" y="80" width="110" height="45" rx="4" fill="#fff" stroke="#93c5fd"/>
+  <text x="235" y="100" text-anchor="middle" class="sub">Services</text>
+  <text x="235" y="115" text-anchor="middle" class="sub">firestore, FCM</text>
+  <rect x="50" y="140" width="110" height="45" rx="4" fill="#fff" stroke="#93c5fd"/>
+  <text x="105" y="160" text-anchor="middle" class="sub">Models</text>
+  <text x="105" y="175" text-anchor="middle" class="sub">route, feedback</text>
+  <rect x="180" y="140" width="110" height="45" rx="4" fill="#fff" stroke="#93c5fd"/>
+  <text x="235" y="160" text-anchor="middle" class="sub">Config</text>
+  <text x="235" y="175" text-anchor="middle" class="sub">API_BASE_URL</text>
+  <rect x="350" y="40" width="200" height="120" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="450" y="65" text-anchor="middle" class="comp">Firebase Platform</text>
+  <text x="450" y="88" text-anchor="middle" class="sub">Authentication</text>
+  <text x="450" y="104" text-anchor="middle" class="sub">Cloud Firestore</text>
+  <text x="450" y="120" text-anchor="middle" class="sub">Cloud Messaging</text>
+  <rect x="590" y="40" width="300" height="200" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+  <text x="740" y="65" text-anchor="middle" class="comp">Flask Backend (Render)</text>
+  <rect x="610" y="80" width="120" height="45" rx="4" fill="#fff" stroke="#86efac"/>
+  <text x="670" y="100" text-anchor="middle" class="sub">REST Routes</text>
+  <text x="670" y="115" text-anchor="middle" class="sub">/get_prediction</text>
+  <rect x="750" y="80" width="120" height="45" rx="4" fill="#fff" stroke="#86efac"/>
+  <text x="810" y="100" text-anchor="middle" class="sub">ML Module</text>
+  <text x="810" y="115" text-anchor="middle" class="sub">Random Forest</text>
+  <rect x="610" y="140" width="120" height="45" rx="4" fill="#fff" stroke="#86efac"/>
+  <text x="670" y="160" text-anchor="middle" class="sub">Admin API</text>
+  <text x="670" y="175" text-anchor="middle" class="sub">metrics/retrain</text>
+  <rect x="750" y="140" width="120" height="45" rx="4" fill="#fff" stroke="#86efac"/>
+  <text x="810" y="160" text-anchor="middle" class="sub">Data Adapter</text>
+  <text x="810" y="175" text-anchor="middle" class="sub">IBB fetch</text>
+  <rect x="350" y="280" width="200" height="70" rx="8" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="450" y="310" text-anchor="middle" class="comp">External Open Data</text>
+  <text x="450" y="330" text-anchor="middle" class="sub">IBB stops / vehicles</text>
+  <line x1="310" y1="120" x2="350" y2="100" stroke="#334155" marker-end="url(#arrow)"/>
+  <rect x="318" y="88" width="72" height="16" fill="#fff"/>
+  <text x="354" y="100" text-anchor="middle" class="lbl">auth/data</text>
+  <line x1="310" y1="150" x2="590" y2="130" stroke="#334155" marker-end="url(#arrow)"/>
+  <rect x="400" y="118" width="78" height="16" fill="#fff"/>
+  <text x="439" y="130" text-anchor="middle" class="lbl">HTTPS JSON</text>
+  <line x1="740" y1="240" x2="450" y2="280" stroke="#334155" marker-end="url(#arrow)"/>
+  <rect x="560" y="248" width="58" height="16" fill="#fff"/>
+  <text x="589" y="260" text-anchor="middle" class="lbl">live feed</text>
+  <text x="460" y="500" text-anchor="middle" class="cap">Figure 7.6 - Component diagram of TrafikPuls</text>
+</svg>
