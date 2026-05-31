@@ -6,9 +6,12 @@ import urllib.parse
 import urllib.request
 import hashlib
 
+from route_geometry import build_route_stops
+
 app = Flask(__name__)
 USER_REPORTS = {}
 LIVE_DATA_LAST_ERROR = None
+LIVE_STOPS_LAST_ERROR = None
 MODEL_MONITORING = {
     'mae': 0.118,
     'rmse': 0.176,
@@ -18,6 +21,26 @@ MODEL_MONITORING = {
 }
 LAST_RETRAIN_JOB = None
 LAST_PUSH_EVENT = None
+
+
+DEFAULT_ADMIN_EMAIL = 'demor.uzay@gmail.com'
+
+
+def _admin_emails():
+    raw = os.getenv('ADMIN_EMAILS', DEFAULT_ADMIN_EMAIL).strip()
+    if not raw:
+        return {DEFAULT_ADMIN_EMAIL}
+    return {e.strip().lower() for e in raw.split(',') if e.strip()}
+
+
+def require_admin():
+    allowed = _admin_emails()
+    if not allowed:
+        return None
+    email = (request.headers.get('X-User-Email') or '').strip().lower()
+    if email not in allowed:
+        return jsonify({'error': 'Admin access denied'}), 403
+    return None
 
 ROUTE_STOP_NAMES = {
     'M4': [
@@ -309,6 +332,104 @@ def fetch_live_buses(route_id):
         LIVE_DATA_LAST_ERROR = str(e)
         return None
 
+
+def _normalize_stops_payload(payload):
+    if isinstance(payload, list):
+        return payload
+    if not isinstance(payload, dict):
+        return []
+    for key in ['stops', 'data', 'result', 'items', 'records']:
+        value = payload.get(key)
+        if isinstance(value, list):
+            return value
+        if isinstance(value, dict):
+            for nested_key in ['stops', 'data', 'items', 'records']:
+                nested = value.get(nested_key)
+                if isinstance(nested, list):
+                    return nested
+    return []
+
+
+def _normalize_live_stops(route_id, payload):
+    route_id = route_id.upper().strip()
+    rows = _normalize_stops_payload(payload)
+    normalized = []
+    for idx, row in enumerate(rows):
+        if not isinstance(row, dict):
+            continue
+
+        row_route = str(_extract_value(row, [
+            'routeId', 'route_id', 'line', 'lineCode', 'hat_kodu', 'hat'
+        ]) or '').upper().strip()
+        if row_route and row_route != route_id:
+            continue
+
+        lat_raw = _extract_value(row, ['lat', 'latitude', 'enlem', 'y'])
+        lng_raw = _extract_value(row, ['lng', 'lon', 'longitude', 'boylam', 'x'])
+        if lat_raw is None or lng_raw is None:
+            continue
+
+        try:
+            lat = float(lat_raw)
+            lng = float(lng_raw)
+        except (TypeError, ValueError):
+            continue
+
+        stop_id = str(_extract_value(row, ['id', 'stopId', 'durak_id']) or f'{route_id}_{idx+1}')
+        stop_name = str(_extract_value(row, ['name', 'stopName', 'durak_adi']) or f'{route_id} Stop {idx+1}')
+        normalized.append({
+            'id': stop_id,
+            'name': stop_name,
+            'lat': lat,
+            'lng': lng,
+        })
+    return normalized
+
+
+def fetch_live_stops(route_id):
+    global LIVE_STOPS_LAST_ERROR
+    api_url = os.getenv('IBB_STOPS_API_URL', '').strip()
+    if not api_url:
+        LIVE_STOPS_LAST_ERROR = 'IBB_STOPS_API_URL is not configured'
+        return None
+
+    api_key = os.getenv('IBB_API_KEY', '').strip()
+    key_header = os.getenv('IBB_API_KEY_HEADER', 'apikey').strip()
+    route_param = os.getenv('IBB_STOPS_ROUTE_PARAM', os.getenv('IBB_ROUTE_PARAM', 'routeId')).strip()
+    timeout_sec = float(os.getenv('IBB_TIMEOUT_SEC', '5'))
+
+    try:
+        parsed = urllib.parse.urlparse(api_url)
+        query = urllib.parse.parse_qs(parsed.query)
+        query[route_param] = [route_id]
+        final_query = urllib.parse.urlencode(query, doseq=True)
+        final_url = urllib.parse.urlunparse((
+            parsed.scheme, parsed.netloc, parsed.path,
+            parsed.params, final_query, parsed.fragment
+        ))
+
+        req = urllib.request.Request(final_url)
+        if api_key:
+            req.add_header(key_header, api_key)
+        req.add_header('Accept', 'application/json')
+
+        with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
+            if resp.status != 200:
+                LIVE_STOPS_LAST_ERROR = f'HTTP {resp.status}'
+                return None
+            body = resp.read().decode('utf-8')
+            payload = json.loads(body)
+
+        stops = _normalize_live_stops(route_id, payload)
+        if not stops:
+            LIVE_STOPS_LAST_ERROR = 'Live stops payload parsed but no matching stops found'
+            return None
+        LIVE_STOPS_LAST_ERROR = None
+        return stops
+    except Exception as e:
+        LIVE_STOPS_LAST_ERROR = str(e)
+        return None
+
 @app.route('/health')
 def health():
     return jsonify({
@@ -316,27 +437,30 @@ def health():
         'timestamp': datetime.utcnow().isoformat(),
         'liveDataConfigured': bool(os.getenv('IBB_TRAFFIC_API_URL', '').strip()),
         'liveDataLastError': LIVE_DATA_LAST_ERROR,
+        'liveStopsConfigured': bool(os.getenv('IBB_STOPS_API_URL', '').strip()),
+        'liveStopsLastError': LIVE_STOPS_LAST_ERROR,
     })
 
 def mock_stops(route_id, stop_count=12):
+    curated = build_route_stops(route_id)
+    if curated:
+        return curated
+
     center_lat, center_lng = ROUTE_CENTERS.get(route_id, (41.0082, 28.9784))
     stop_names = ROUTE_STOP_NAMES.get(route_id.upper().strip(), [])
     if stop_names:
         stop_count = len(stop_names)
 
-    # Hat bazlı deterministik yön: aynı route her çağrıda aynı geometriyi verir.
     route_hash = hashlib.md5(route_id.upper().strip().encode('utf-8')).hexdigest()
     hash_num = int(route_hash[:8], 16)
     base_bearing = (hash_num % 360) * (np.pi / 180.0)
 
     points = []
     for i in range(stop_count):
-        # Basit bir hat eğrisi oluşturup durakları bu çizgi üzerine dizer.
         step = i / max(stop_count - 1, 1)
         lat = center_lat + (step - 0.5) * 0.12 + np.sin(step * np.pi) * 0.01
         lng = center_lng + (step - 0.5) * 0.12 + np.cos(step * np.pi) * 0.01
 
-        # Rota yönünü farklılaştırmak için küçük bir rotasyon uygula.
         d_lat = lat - center_lat
         d_lng = lng - center_lng
         rot_lat = d_lat * np.cos(base_bearing) - d_lng * np.sin(base_bearing)
@@ -423,7 +547,13 @@ def get_stops(route_id):
 
     # Yoğunluk arttıkça durak ETA'ları uzasın.
     minutes_per_stop = 1.4 + (effective_score * 2.8)
-    stops = mock_stops(route_id)
+    live_stops = fetch_live_stops(route_id)
+    if live_stops:
+        stops = live_stops
+        source = 'ibb_live'
+    else:
+        stops = mock_stops(route_id)
+        source = 'curated' if build_route_stops(route_id) else 'mock'
     for i, stop in enumerate(stops):
         stop['etaMin'] = int(round((i + 1) * minutes_per_stop))
 
@@ -431,6 +561,8 @@ def get_stops(route_id):
         'routeId': route_id,
         'stops': stops,
         'count': len(stops),
+        'source': source,
+        'liveStopsLastError': LIVE_STOPS_LAST_ERROR,
     }), 200
 
 @app.route('/get_incidents/<route_id>')
@@ -571,6 +703,9 @@ def get_prediction(route_id):
 
 @app.route('/admin/model_metrics')
 def admin_model_metrics():
+    denied = require_admin()
+    if denied:
+        return denied
     return jsonify({
         'status': 'ok',
         'metrics': MODEL_MONITORING,
@@ -582,6 +717,9 @@ def admin_model_metrics():
 
 @app.route('/admin/retrain', methods=['POST'])
 def admin_retrain():
+    denied = require_admin()
+    if denied:
+        return denied
     global LAST_RETRAIN_JOB
     now = datetime.utcnow()
     payload = request.get_json(silent=True) or {}
@@ -614,6 +752,9 @@ def admin_retrain():
 
 @app.route('/admin/trigger_push', methods=['POST'])
 def admin_trigger_push():
+    denied = require_admin()
+    if denied:
+        return denied
     global LAST_PUSH_EVENT
     now = datetime.utcnow()
     payload = request.get_json(silent=True) or {}
