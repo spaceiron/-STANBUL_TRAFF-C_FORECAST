@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/route_feedback_prediction_models.dart';
 import '../services/firestore_service.dart';
-import '../widgets/density_chart_widget.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../services/app_settings_service.dart';

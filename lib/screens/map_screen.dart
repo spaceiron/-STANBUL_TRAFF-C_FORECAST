@@ -234,32 +234,6 @@ final List<RouteModel> _allRoutes = [
     }
   }
 
-  void _addBusMarkers(List<dynamic> buses, String routeId) {
-    setState(() {
-      _markers.removeWhere((m) => m.markerId.value.startsWith('bus_'));
-      for (int i = 0; i < buses.length; i++) {
-        final bus = buses[i];
-        _markers.add(Marker(
-          markerId: MarkerId('bus_${routeId}_$i'),
-          position: LatLng(
-            (bus['lat'] as num).toDouble(),
-            (bus['lng'] as num).toDouble(),
-          ),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueAzure),
-          infoWindow: InfoWindow(
-            title:   LocaleHelper.lineName(routeId, _language),
-            snippet: LocaleHelper.speedSnippet(
-              (bus['speed'] as num).toDouble(),
-              _language,
-            ),
-          ),
-          onTap: () => _fetchPrediction(routeId),
-        ));
-      }
-    });
-  }
-
   Future<void> _fetchRouteStops(String routeId) async {
     try {
       final response = await http

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
 import '../config/admin_config.dart';
 import '../models/route_feedback_prediction_models.dart';
+import '../services/app_settings_service.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -21,6 +22,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   static const Color _textSec = Color(0xFF64748B);
   static const Color _accent = Color(0xFF3B82F6);
 
+  final _settings = AppSettingsService();
+  AppLanguage _language = AppLanguage.tr;
+  bool get _isEn => _language == AppLanguage.en;
+  String _t(String tr, String en) => _isEn ? en : tr;
+
   bool _adminLoading = false;
   Map<String, dynamic>? _modelMetrics;
   Map<String, dynamic>? _lastRetrainJob;
@@ -32,6 +38,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   void initState() {
     super.initState();
+    _loadLanguage();
     final email = FirebaseAuth.instance.currentUser?.email;
     if (!AdminConfig.isAdminEmail(email)) {
       _accessDenied = true;
@@ -39,6 +46,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
     _refreshAdminData();
   }
+
+  Future<void> _loadLanguage() async {
+    final language = await _settings.getLanguage();
+    if (!mounted) return;
+    setState(() => _language = language);
+  }
+
+  bool _isAdminErrorMessage(String msg) =>
+      msg.startsWith('Admin API hatası') ||
+      msg.startsWith('Admin API error') ||
+      msg.startsWith('Admin API erişilemedi') ||
+      msg.startsWith('Admin API unreachable');
 
   Map<String, String> _adminHeaders({bool jsonBody = false}) {
     final headers = <String, String>{};
@@ -70,15 +89,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           _lastPushEvent = data['lastPushEvent'] == null
               ? null
               : Map<String, dynamic>.from(data['lastPushEvent']);
-          _adminMessage = 'Admin API bağlı';
+          _adminMessage = _t('Admin API bağlı', 'Admin API connected');
         });
       } else {
         if (!mounted) return;
-        setState(() => _adminMessage = 'Admin API hatası: ${res.statusCode}');
+        setState(() => _adminMessage =
+            _t('Admin API hatası: ${res.statusCode}', 'Admin API error: ${res.statusCode}'));
       }
     } catch (e) {
       if (!mounted) return;
-      setState(() => _adminMessage = 'Admin API erişilemedi: $e');
+      setState(() => _adminMessage =
+          _t('Admin API erişilemedi: $e', 'Admin API unreachable: $e'));
     } finally {
       if (mounted) setState(() => _adminLoading = false);
     }
@@ -96,12 +117,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           .timeout(const Duration(seconds: 12));
       if (res.statusCode == 200) {
         await _refreshAdminData();
-        _showSnack('Retrain tamamlandı (prototype)');
+        _showSnack(_t('Retrain tamamlandı (prototype)', 'Retrain completed (prototype)'));
       } else {
-        _showSnack('Retrain hatası: ${res.statusCode}', isError: true);
+        _showSnack(_t('Retrain hatası: ${res.statusCode}', 'Retrain error: ${res.statusCode}'),
+            isError: true);
       }
     } catch (e) {
-      _showSnack('Retrain çağrısı başarısız: $e', isError: true);
+      _showSnack(_t('Retrain çağrısı başarısız: $e', 'Retrain request failed: $e'),
+          isError: true);
     } finally {
       if (mounted) setState(() => _adminLoading = false);
     }
@@ -123,12 +146,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           .timeout(const Duration(seconds: 12));
       if (res.statusCode == 200) {
         await _refreshAdminData();
-        _showSnack('Push tetiklendi (prototype)');
+        _showSnack(_t('Push tetiklendi (prototype)', 'Push triggered (prototype)'));
       } else {
-        _showSnack('Push tetikleme hatası: ${res.statusCode}', isError: true);
+        _showSnack(
+            _t('Push tetikleme hatası: ${res.statusCode}', 'Push trigger error: ${res.statusCode}'),
+            isError: true);
       }
     } catch (e) {
-      _showSnack('Push çağrısı başarısız: $e', isError: true);
+      _showSnack(_t('Push çağrısı başarısız: $e', 'Push request failed: $e'),
+          isError: true);
     } finally {
       if (mounted) setState(() => _adminLoading = false);
     }
@@ -159,7 +185,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
-              'Bu alan yalnızca yetkili admin hesabı içindir.',
+              _t(
+                'Bu alan yalnızca yetkili admin hesabı içindir.',
+                'This area is restricted to authorized admin accounts only.',
+              ),
               textAlign: TextAlign.center,
               style: TextStyle(color: _textSec, fontSize: 15),
             ),
@@ -196,7 +225,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           }
           if (snapshot.hasError) {
             return Center(
-              child: Text('Hata: ${snapshot.error}',
+              child: Text(
+                _t('Hata: ${snapshot.error}', 'Error: ${snapshot.error}'),
                   style: const TextStyle(color: Colors.redAccent)),
             );
           }
@@ -212,84 +242,99 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               _statsCard(
-                title: 'Admin API Durumu',
-                value: _adminLoading ? 'Yükleniyor...' : 'Bağlı',
-                subtitle: _adminMessage.isEmpty ? 'Durum bekleniyor' : _adminMessage,
-                valueColor: _adminMessage.startsWith('Admin API hatası') ||
-                        _adminMessage.startsWith('Admin API erişilemedi')
+                title: _t('Admin API Durumu', 'Admin API Status'),
+                value: _adminLoading
+                    ? _t('Yükleniyor...', 'Loading...')
+                    : _t('Bağlı', 'Connected'),
+                subtitle: _adminMessage.isEmpty
+                    ? _t('Durum bekleniyor', 'Waiting for status')
+                    : _adminMessage,
+                valueColor: _isAdminErrorMessage(_adminMessage)
                     ? Colors.orange
                     : Colors.green,
               ),
               const SizedBox(height: 10),
               _statsCard(
-                title: 'Toplam Son Kayıt',
+                title: _t('Toplam Son Kayıt', 'Recent Records'),
                 value: '${feedbacks.length}',
-                subtitle: 'Stream edilen son 120 feedback',
+                subtitle: _t('Stream edilen son 120 feedback', 'Last 120 feedback items in stream'),
               ),
               const SizedBox(height: 10),
               _statsCard(
-                title: 'Son 24 Saat',
+                title: _t('Son 24 Saat', 'Last 24 Hours'),
                 value: '$last24h',
-                subtitle: '24 saat içindeki kullanıcı bildirimi',
+                subtitle: _t('24 saat içindeki kullanıcı bildirimi', 'User reports in the last 24 hours'),
               ),
               const SizedBox(height: 10),
               _statsCard(
-                title: 'Şüpheli Çakışma',
+                title: _t('Şüpheli Çakışma', 'Suspicious Conflicts'),
                 value: '${suspicious.length}',
-                subtitle: 'Aynı hatta 5 dk içinde çelişkili yoğunluk',
+                subtitle: _t(
+                  'Aynı hatta 5 dk içinde çelişkili yoğunluk',
+                  'Conflicting density reports on same line within 5 min',
+                ),
                 valueColor: suspicious.isEmpty ? Colors.green : Colors.orange,
               ),
               const SizedBox(height: 10),
               _statsCard(
-                title: 'Toplam Kullanıcı',
+                title: _t('Toplam Kullanıcı', 'Total Users'),
                 value: '${_countUniqueUsers(feedbacks)}',
-                subtitle: 'Feedback veren benzersiz kullanıcı',
+                subtitle: _t('Feedback veren benzersiz kullanıcı', 'Unique users who submitted feedback'),
               ),
               const SizedBox(height: 10),
               _statsCard(
-                title: 'Popüler Hat',
+                title: _t('Popüler Hat', 'Popular Line'),
                 value: _mostReportedRoute(feedbacks),
-                subtitle: 'En çok bildirim alan hat (stream)',
+                subtitle: _t('En çok bildirim alan hat (stream)', 'Most reported line in stream'),
               ),
               const SizedBox(height: 18),
-              const Text(
-                'Model Performans İzleme',
-                style: TextStyle(
+              Text(
+                _t('Model Performans İzleme', 'Model Performance Monitoring'),
+                style: const TextStyle(
                     color: _textPri, fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 10),
               _metricsCard(),
               const SizedBox(height: 18),
-              const Text(
-                'Operasyon Kontrolleri',
-                style: TextStyle(
+              Text(
+                _t('Operasyon Kontrolleri', 'Operations Controls'),
+                style: const TextStyle(
                     color: _textPri, fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 10),
               _controlCard(
-                title: 'Model Retrain',
-                subtitle: 'Admin tetiklemeli yeniden eğitim (prototype pipeline)',
-                buttonText: 'Retrain Başlat',
+                title: _t('Model Retrain', 'Model Retrain'),
+                subtitle: _t(
+                  'Admin tetiklemeli yeniden eğitim (prototype pipeline)',
+                  'Admin-triggered retraining (prototype pipeline)',
+                ),
+                buttonText: _t('Retrain Başlat', 'Start Retrain'),
                 icon: Icons.model_training_outlined,
                 onTap: _adminLoading ? null : _triggerRetrain,
               ),
               const SizedBox(height: 10),
               _controlCard(
-                title: 'Backend Push Trigger',
-                subtitle: 'FCM backend-trigger akış simülasyonu',
-                buttonText: 'Push Tetikle',
+                title: _t('Backend Push Trigger', 'Backend Push Trigger'),
+                subtitle: _t(
+                  'FCM backend-trigger akış simülasyonu',
+                  'Simulated FCM backend-trigger flow',
+                ),
+                buttonText: _t('Push Tetikle', 'Trigger Push'),
                 icon: Icons.notifications_active_outlined,
                 onTap: _adminLoading ? null : _triggerPush,
               ),
               const SizedBox(height: 18),
-              const Text(
-                'Şüpheli Kayıtlar',
-                style: TextStyle(
+              Text(
+                _t('Şüpheli Kayıtlar', 'Suspicious Records'),
+                style: const TextStyle(
                     color: _textPri, fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 10),
               if (suspicious.isEmpty)
-                _emptyCard('Şu anda çelişkili veri tespit edilmedi.')
+                _emptyCard(_t(
+                  'Şu anda çelişkili veri tespit edilmedi.',
+                  'No conflicting data detected right now.',
+                ))
               else
                 ...suspicious.map((s) => _suspiciousTile(s)),
             ],
@@ -324,15 +369,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           const SizedBox(height: 4),
           Text('Drift Score: $drift', style: const TextStyle(color: _textPri)),
           const SizedBox(height: 4),
-          Text('Model Version: $version', style: const TextStyle(color: _textPri)),
+          Text('${_t("Model Sürümü", "Model Version")}: $version',
+              style: const TextStyle(color: _textPri)),
           const SizedBox(height: 4),
-          Text('Last Trained: $trainedAt',
+          Text('${_t("Son Eğitim", "Last Trained")}: $trainedAt',
               style: const TextStyle(color: _textSec, fontSize: 12)),
           const SizedBox(height: 8),
-          Text('Last Retrain Job: $retrainJob',
+          Text('${_t("Son Retrain İşi", "Last Retrain Job")}: $retrainJob',
               style: const TextStyle(color: _textSec, fontSize: 12)),
           const SizedBox(height: 4),
-          Text('Last Push Event: $pushEvent',
+          Text('${_t("Son Push Olayı", "Last Push Event")}: $pushEvent',
               style: const TextStyle(color: _textSec, fontSize: 12)),
         ],
       ),
@@ -432,12 +478,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${aggregate.routeId} hattı',
+                Text(
+                  _isEn
+                      ? '${aggregate.routeId} line'
+                      : '${aggregate.routeId} hattı',
                     style: const TextStyle(
                         color: _textPri, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
                 Text(
-                  '${aggregate.minuteBucket} dakikasında çelişkili ${aggregate.uniqueStatusCount} farklı bildirim',
+                  _isEn
+                      ? '${aggregate.uniqueStatusCount} conflicting reports at ${aggregate.minuteBucket}'
+                      : '${aggregate.minuteBucket} dakikasında çelişkili ${aggregate.uniqueStatusCount} farklı bildirim',
                   style: const TextStyle(color: _textSec, fontSize: 12),
                 ),
               ],

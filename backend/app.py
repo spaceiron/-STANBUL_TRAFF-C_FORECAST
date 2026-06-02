@@ -545,7 +545,7 @@ def get_stops(route_id):
     base_score = predict_density(center[0], center[1], 50)
     effective_score, _, _, _ = apply_recent_user_report(route_id, base_score, now)
 
-    # Yoğunluk arttıkça durak ETA'ları uzasın.
+
     minutes_per_stop = 1.4 + (effective_score * 2.8)
     live_stops = fetch_live_stops(route_id)
     if live_stops:
@@ -752,7 +752,7 @@ def admin_retrain():
 
 @app.route('/admin/trigger_push', methods=['POST'])
 def admin_trigger_push():
-    denied = require_admin()
+    denied = require_admin()    
     if denied:
         return denied
     global LAST_PUSH_EVENT

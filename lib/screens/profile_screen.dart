@@ -5,7 +5,7 @@ import '../models/user_model.dart';
 import '../services/firestore_service.dart';
 import '../services/app_settings_service.dart';
 import '../config/admin_config.dart';
-import '../widgets/density_chart_widget.dart';
+import '../widgets/density_bar.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
